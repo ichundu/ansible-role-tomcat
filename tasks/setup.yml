@@ -1,0 +1,33 @@
+---
+
+- name: Create systemd tomcat.service
+  template:
+    src: tomcat.service.j2
+    dest: /etc/systemd/system/tomcat.service
+  when: ansible_distribution_major_version == "7"
+  tags:
+    - setup
+
+- name: Start tomcat service
+  systemd:
+    name: tomcat
+    daemon_reload: yes
+    state: started
+    enabled: yes
+  when: ansible_distribution_major_version == "7"
+  tags:
+    - setup
+
+- name: Configure tomcat
+  template:
+    src: "{{ item.src}}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: tomcat-users.xml.j2
+      dest: "{{ tomcat_user[0].home }}/conf/tomcat-users.xml"
+    - src: context.xml.j2
+      dest: "{{ tomcat_user[0].home }}/webapps/host-manager/META-INF/context.xml"
+  notify:
+    - restart tomcat
+  tags:
+    - setup

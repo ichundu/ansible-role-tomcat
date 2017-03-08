@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+<tomcat-users>
+    <user username="{{ tomcat_user[0].admin_user }}" password="{{ tomcat_user[0].admin_pass }}" roles="{{ tomcat_user[0].admin_roles }}"/>
+</tomcat-users>
+
+# {{ ansible_managed }}

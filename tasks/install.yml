@@ -1,0 +1,59 @@
+---
+# tasks file for tomcat
+
+- name: Create tomcat group
+  group:
+    name: "{{ item.group }}"
+    state: present
+  with_items: "{{ tomcat_user }}"
+  tags:
+    - install
+
+- name: Create tomcat user
+  user:
+    name: "{{ item.name }}"
+    group: "{{ item.group }}"
+    shell: "{{ item.shell }}"
+    createhome: "{{ item.createhome }}"
+    home: "{{ item.home }}"
+    state: present
+  with_items: "{{ tomcat_user }}"
+  tags:
+    - install
+
+- name: Create tomcat installation directory
+  file:
+    path: "{{ item.home }}"
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    state: directory
+  with_items: "{{ tomcat_user }}"
+  tags:
+    - install
+
+- name: Download tomcat tarball
+  get_url:
+    url: "{{ tomcat_download_url }}"
+    dest: /opt
+  tags:
+    - install
+
+- name: Extract tomcat tarball
+  unarchive:
+    src: "/opt/apache-tomcat-{{ tomcat_version }}.tar.gz"
+    dest: "{{ item.home }}"
+    owner: "{{ item.name }}"
+    group: "{{ item.group }}"
+    remote_src: yes
+    extra_opts: "--strip-components=1"
+  with_items: "{{ tomcat_user }}"
+  tags:
+    - install
+
+- name: Install java
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ tomcat_java_packages }}"
+  tags:
+    - install

@@ -1,0 +1,10 @@
+---
+# tasks file for tomcat
+
+- include: install.yml
+  tags:
+    - install
+
+- include: setup.yml
+  tags:
+    - setup

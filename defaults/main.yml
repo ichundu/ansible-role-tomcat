@@ -1,0 +1,23 @@
+---
+# defaults file for tomcat
+
+tomcat_user:
+  - name: "tomcat"
+    group: "tomcat"
+    shell: "/sbin/nologin"
+    createhome: "no"
+    home: "/opt/apache-tomcat"
+    admin_user: "admin"
+    admin_pass: "s3cret"
+    admin_roles: "manager-gui,admin-gui"
+
+tomcat_version: "8.5.11"
+tomcat_download_url: "http://www-us.apache.org/dist/tomcat/tomcat-8/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+
+tomcat_java_packages:
+  - java-1.8.0-openjdk
+  - java-1.8.0-openjdk-devel
+
+tomcat_java_home: "/usr/lib/jvm/jre"
+
+tomcat_acl_allow: "127\\.\\d+\\.\\d+\\.\\d+|10\\.\\d+\\.\\d+\\.\\d+|::1|0:0:0:0:0:0:0:1"
