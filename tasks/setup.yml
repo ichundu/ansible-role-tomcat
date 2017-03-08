@@ -14,6 +14,8 @@
       dest: "{{ tomcat_user[0].home }}/conf/tomcat-users.xml"
     - src: context.xml.j2
       dest: "{{ tomcat_user[0].home }}/webapps/host-manager/META-INF/context.xml"
+    - src: context.xml.j2
+      dest: "{{ tomcat_user[0].home }}/webapps/manager/META-INF/context.xml"
   notify:
     - restart tomcat
   tags:

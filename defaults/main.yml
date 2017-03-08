@@ -20,4 +20,4 @@ tomcat_java_packages:
 
 tomcat_java_home: "/usr/lib/jvm/jre"
 
-tomcat_acl_allow: "127\\.\\d+\\.\\d+\\.\\d+|10\\.\\d+\\.\\d+\\.\\d+|::1|0:0:0:0:0:0:0:1"
+tomcat_acl_allow: "127\\.\\d+\\.\\d+\\.\\d+|::1|0:0:0:0:0:0:0:1"
