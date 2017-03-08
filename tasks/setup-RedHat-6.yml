@@ -1,0 +1,17 @@
+---
+
+- name: EL 6 | Create tomcat init service
+  template:
+    src: el6/tomcat.j2
+    dest: /etc/init.d/tomcat
+    mode: "0755"
+  tags:
+    - setup
+
+- name: Start tomcat service
+  service:
+    name: tomcat
+    state: started
+    enabled: yes
+  tags:
+    - setup

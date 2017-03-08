@@ -1,20 +1,7 @@
 ---
 
-- name: Create systemd tomcat.service
-  template:
-    src: tomcat.service.j2
-    dest: /etc/systemd/system/tomcat.service
-  when: ansible_distribution_major_version == "7"
-  tags:
-    - setup
-
-- name: Start tomcat service
-  systemd:
-    name: tomcat
-    daemon_reload: yes
-    state: started
-    enabled: yes
-  when: ansible_distribution_major_version == "7"
+- include: "setup-{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+  static: no
   tags:
     - setup
 

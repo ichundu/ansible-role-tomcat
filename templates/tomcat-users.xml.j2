@@ -1,7 +1,14 @@
-# {{ ansible_managed }}
+<!-- {{ ansible_managed }} -->
 
-<tomcat-users>
+<tomcat-users xmlns="http://tomcat.apache.org/xml"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+              version="1.0">
+
+	<role rolename="manager-gui"/>
+	<role rolename="admin-gui"/>
     <user username="{{ tomcat_user[0].admin_user }}" password="{{ tomcat_user[0].admin_pass }}" roles="{{ tomcat_user[0].admin_roles }}"/>
+
 </tomcat-users>
 
-# {{ ansible_managed }}
+<!-- {{ ansible_managed }} -->
