@@ -32,7 +32,7 @@ CATALINA_PID={{ tomcat_user[0].home }}/temp/tomcat.pid
 CATALINA_HOME={{ tomcat_user[0].home }}
 CATALINA_BASE={{ tomcat_user[0].home }}
 TOMCAT_USER=tomcat
-SHUTDOWN_WAIT=20
+SHUTDOWN_WAIT=10
 
 tomcat_pid() {
   echo `ps aux | grep org.apache.catalina.startup.Bootstrap | grep -v grep | awk '{ print $2 }'`
