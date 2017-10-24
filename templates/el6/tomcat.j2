@@ -27,10 +27,10 @@ export JAVA_OPTS="-Dfile.encoding=UTF-8 \
   -XX:MaxPermSize=128m \
   -Xms512m -Xmx512m"
 export PATH=$JAVA_HOME/bin:$PATH
-TOMCAT_HOME={{ tomcat_user[0].home }}
-CATALINA_PID={{ tomcat_user[0].home }}/temp/tomcat.pid
-CATALINA_HOME={{ tomcat_user[0].home }}
-CATALINA_BASE={{ tomcat_user[0].home }}
+TOMCAT_HOME={{ tomcat_install_link }}
+CATALINA_PID={{ tomcat_install_link }}/temp/tomcat.pid
+CATALINA_HOME={{ tomcat_install_link }}
+CATALINA_BASE={{ tomcat_install_link }}
 TOMCAT_USER=tomcat
 SHUTDOWN_WAIT=10
 
@@ -40,7 +40,7 @@ tomcat_pid() {
 
 start() {
   pid=$(tomcat_pid)
-  if [ -n "$pid" ] 
+  if [ -n "$pid" ]
   then
     echo "Tomcat is already running (pid: $pid)"
   else
@@ -78,17 +78,17 @@ stop() {
   else
     echo "Tomcat is not running"
   fi
- 
+
   return 0
 }
 
 case $1 in
 start)
   start
-;; 
-stop)   
+;;
+stop)
   stop
-;; 
+;;
 restart)
   stop
   start
@@ -101,8 +101,8 @@ status)
   else
     echo "Tomcat is not running"
   fi
-;; 
-esac    
+;;
+esac
 exit 0
 
 # {{ ansible_managed }}

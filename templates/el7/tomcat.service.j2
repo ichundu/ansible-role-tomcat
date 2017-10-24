@@ -9,14 +9,15 @@ After=syslog.target network.target
 Type=forking
 
 Environment=JAVA_HOME={{ tomcat_java_home }}
-Environment=CATALINA_PID={{ tomcat_user[0].home }}/temp/tomcat.pid
-Environment=CATALINA_HOME={{ tomcat_user[0].home }}
-Environment=CATALINA_BASE={{ tomcat_user[0].home }}
+Environment=CATALINA_PID={{ tomcat_install_link }}/temp/tomcat.pid
+Environment=CATALINA_HOME={{ tomcat_install_link }}
+Environment=CATALINA_BASE={{ tomcat_install_link }}
 Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
 Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
 
-ExecStart={{ tomcat_user[0].home }}/bin/startup.sh
-ExecStop=/bin/kill -15 $MAINPID
+ExecStart={{ tomcat_install_link }}/bin/startup.sh
+ExecStop={{ tomcat_install_link }}/bin/shutdown.sh
+#ExecStop=/bin/kill -15 $MAINPID
 
 User={{ tomcat_user[0].name }}
 Group={{ tomcat_user[0].group }}

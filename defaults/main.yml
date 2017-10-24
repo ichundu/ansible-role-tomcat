@@ -4,20 +4,40 @@
 tomcat_user:
   - name: "tomcat"
     group: "tomcat"
-    shell: "/sbin/nologin"
-    createhome: "no"
-    home: "/opt/apache-tomcat"
-    admin_user: "admin"
-    admin_pass: "s3cret"
-    admin_roles: "manager-gui,admin-gui"
+    # shell: "/sbin/nologin"
+    # createhome: false
+    # home: "/opt/apache-tomcat"
 
-tomcat_version: "8.5.11"
+tomcat_version: "8.5.23"
 tomcat_download_url: "http://www-us.apache.org/dist/tomcat/tomcat-8/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
 
+tomcat_install_dir: "/opt/apache-tomcat-{{ tomcat_version }}"
+tomcat_install_link: "/opt/apache-tomcat"
+
 tomcat_java_packages:
-  - java-1.8.0-openjdk
-  - java-1.8.0-openjdk-devel
+- java-1.8.0-openjdk
+- java-1.8.0-openjdk-devel
+
+tomcat_context_acl: "127\\.\\d+\\.\\d+\\.\\d+|::1|0:0:0:0:0:0:0:1"
+
+tomcat_console_roles:
+  - role: manager-gui
+    user: tomcat
+    password: "s3cret"
+  - role: manager-status
+    user: tomcat
+    password: "s3cret"
+  # - role: manager-script
+  #   user: admin
+  #   password: s3cret
+  # - role: manager-jmx
+  #   user: admin
+  #   password: s3cret
+  - role: admin-gui
+    user: tomcat
+    password: "s3cret"
+  # - role: admin-script
+  #   user: admin
+  #   password: s3cret
 
 tomcat_java_home: "/usr/lib/jvm/jre"
-
-tomcat_acl_allow: "127\\.\\d+\\.\\d+\\.\\d+|::1|0:0:0:0:0:0:0:1"

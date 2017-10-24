@@ -2,8 +2,6 @@
 
 - include: "setup-{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
   static: no
-  tags:
-    - setup
 
 - name: Configure tomcat
   template:
@@ -11,12 +9,10 @@
     dest: "{{ item.dest }}"
   with_items:
     - src: tomcat-users.xml.j2
-      dest: "{{ tomcat_user[0].home }}/conf/tomcat-users.xml"
+      dest: "{{ tomcat_install_dir }}/conf/tomcat-users.xml"
     - src: context.xml.j2
-      dest: "{{ tomcat_user[0].home }}/webapps/host-manager/META-INF/context.xml"
+      dest: "{{ tomcat_install_dir }}/webapps/host-manager/META-INF/context.xml"
     - src: context.xml.j2
-      dest: "{{ tomcat_user[0].home }}/webapps/manager/META-INF/context.xml"
+      dest: "{{ tomcat_install_dir }}/webapps/manager/META-INF/context.xml"
   notify:
     - restart tomcat
-  tags:
-    - setup

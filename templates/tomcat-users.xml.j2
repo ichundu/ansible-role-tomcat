@@ -7,9 +7,12 @@
               xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
               version="1.0">
 
-	<role rolename="manager-gui"/>
-	<role rolename="admin-gui"/>
-    <user username="{{ tomcat_user[0].admin_user }}" password="{{ tomcat_user[0].admin_pass }}" roles="{{ tomcat_user[0].admin_roles }}"/>
+{% if tomcat_console_roles is defined %}
+{% for item in tomcat_console_roles %}
+  <role rolename="{{ item.role }}"/>
+  <user username="{{ item.user }}" password="{{ item.password }}" roles="{{ item.role }}"/>
+{% endfor %}
+{% endif %}
 
 </tomcat-users>
 

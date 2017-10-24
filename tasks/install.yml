@@ -3,57 +3,64 @@
 
 - name: Create tomcat group
   group:
-    name: "{{ item.group }}"
-    state: present
+    name: "{{ item.group | default(item.name) }}"
+    state: "{{ item.state | default('present') }}"
   with_items: "{{ tomcat_user }}"
-  tags:
-    - install
 
 - name: Create tomcat user
   user:
-    name: "{{ item.name }}"
-    group: "{{ item.group }}"
-    shell: "{{ item.shell }}"
-    createhome: "{{ item.createhome }}"
-    home: "{{ item.home }}"
-    state: present
+    name: "{{ item.name | default('tomcat') }}"
+    group: "{{ item.group | default(item.name) }}"
+    shell: "{{ item.shell | default(omit) }}"
+    createhome: "{{ item.createhome | default(omit) }}"
+    home: "{{ item.home | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
   with_items: "{{ tomcat_user }}"
-  tags:
-    - install
 
-- name: Create tomcat installation directory
+- name: Ensure tomcat user home directory exists
   file:
     path: "{{ item.home }}"
-    owner: "{{ item.name }}"
-    group: "{{ item.group }}"
+    owner: "{{ item.name | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
     state: directory
+  when: item.home is defined
   with_items: "{{ tomcat_user }}"
-  tags:
-    - install
+
+- name: Ensure tomcat installation directory exists
+  file:
+    path: "{{ tomcat_install_dir }}"
+    owner: "{{ item.name | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    state: directory
+  when: tomcat_install_dir is defined
+  with_items: "{{ tomcat_user }}"
 
 - name: Download tomcat tarball
   get_url:
     url: "{{ tomcat_download_url }}"
-    dest: /opt
+    dest: /tmp
   tags:
     - install
 
 - name: Extract tomcat tarball
   unarchive:
-    src: "/opt/apache-tomcat-{{ tomcat_version }}.tar.gz"
-    dest: "{{ item.home }}"
+    src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+    dest: "{{ tomcat_install_dir }}"
     owner: "{{ item.name }}"
     group: "{{ item.group }}"
     remote_src: yes
     extra_opts: "--strip-components=1"
   with_items: "{{ tomcat_user }}"
-  tags:
-    - install
+
+- name: Create symbolic link to tomcat installation directory
+  file:
+    src: "{{ tomcat_install_dir }}"
+    dest: "{{ tomcat_install_link }}"
+    state: link
+  when: tomcat_install_link is defined
 
 - name: Install java
   yum:
     name: "{{ item }}"
     state: present
   with_items: "{{ tomcat_java_packages }}"
-  tags:
-    - install

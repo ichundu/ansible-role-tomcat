@@ -4,7 +4,7 @@
 
 <Context antiResourceLocking="false" privileged="true" >
 	<Valve className="org.apache.catalina.valves.RemoteAddrValve"
-		allow="{{ tomcat_acl_allow }}" />
+		allow="{{ tomcat_context_acl }}" />
 </Context>
 
 <!-- {{ ansible_managed }} -->
