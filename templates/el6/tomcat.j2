@@ -19,18 +19,21 @@
 ## Source function library.
 #. /etc/rc.d/init.d/functions
 export JAVA_HOME={{ tomcat_java_home }}
-export JAVA_OPTS="-Dfile.encoding=UTF-8 \
-  -Dnet.sf.ehcache.skipUpdateCheck=true \
-  -XX:+UseConcMarkSweepGC \
-  -XX:+CMSClassUnloadingEnabled \
-  -XX:+UseParNewGC \
-  -XX:MaxPermSize=128m \
-  -Xms512m -Xmx512m"
+
+#export JAVA_OPTS="-Dfile.encoding=UTF-8 \
+#  -Dnet.sf.ehcache.skipUpdateCheck=true \
+#  -XX:+UseConcMarkSweepGC \
+#  -XX:+CMSClassUnloadingEnabled \
+#  -XX:+UseParNewGC \
+#  -XX:MaxPermSize=128m \
+#  -Xms512m -Xmx512m"
+
 export PATH=$JAVA_HOME/bin:$PATH
-TOMCAT_HOME={{ tomcat_install_link }}
-CATALINA_PID={{ tomcat_install_link }}/temp/tomcat.pid
-CATALINA_HOME={{ tomcat_install_link }}
-CATALINA_BASE={{ tomcat_install_link }}
+TOMCAT_HOME={{ tomcat_install_dir }}
+CATALINA_PID={{ tomcat_install_dir }}/temp/tomcat.pid
+CATALINA_HOME={{ tomcat_install_dir }}
+CATALINA_BASE={{ tomcat_install_dir }}
+
 TOMCAT_USER=tomcat
 SHUTDOWN_WAIT=10
 

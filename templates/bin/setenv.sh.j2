@@ -1,0 +1,8 @@
+#!/bin/bash
+# {{ ansible_managed }}
+
+{% if tomcat_setenv is defined and tomcat_setenv | length > 0 %}
+{% for item in tomcat_setenv %}
+{{ item }}
+{% endfor %}
+{% endif %}

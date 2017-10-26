@@ -12,19 +12,16 @@
     name: "{{ item.name | default('tomcat') }}"
     group: "{{ item.group | default(item.name) }}"
     shell: "{{ item.shell | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
     createhome: "{{ item.createhome | default(omit) }}"
     home: "{{ item.home | default(omit) }}"
     state: "{{ item.state | default('present') }}"
   with_items: "{{ tomcat_user }}"
 
-- name: Ensure tomcat user home directory exists
-  file:
-    path: "{{ item.home }}"
-    owner: "{{ item.name | default(omit) }}"
-    group: "{{ item.group | default(omit) }}"
-    state: directory
-  when: item.home is defined
-  with_items: "{{ tomcat_user }}"
+- name: Check if tomcat is already installed
+  stat:
+    path: "{{ tomcat_install_dir }}"
+  register: tomcat_is_installed
 
 - name: Ensure tomcat installation directory exists
   file:
@@ -39,17 +36,17 @@
   get_url:
     url: "{{ tomcat_download_url }}"
     dest: /tmp
-  tags:
-    - install
+  when: not tomcat_is_installed.stat.exists
 
 - name: Extract tomcat tarball
   unarchive:
     src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
     dest: "{{ tomcat_install_dir }}"
-    owner: "{{ item.name }}"
-    group: "{{ item.group }}"
+    owner: "{{ item.name | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
     remote_src: yes
     extra_opts: "--strip-components=1"
+  when: not tomcat_is_installed.stat.exists
   with_items: "{{ tomcat_user }}"
 
 - name: Create symbolic link to tomcat installation directory

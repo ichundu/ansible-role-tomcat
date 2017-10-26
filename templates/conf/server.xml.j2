@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- {{ ansible_managed }} -->
+
+{% block tomcat_server_instance %}
+<Server port="8005" shutdown="SHUTDOWN">
+
+{% if tomcat_conf_listeners is defined %}
+  {{ tomcat_conf_listeners | indent(2, False) }}
+{% endif %}
+
+{% if tomcat_conf_jndi_resources is defined %}
+  <!-- Global JNDI resources
+       Documentation at /docs/jndi-resources-howto.html
+  -->
+  {{ tomcat_conf_jndi_resources | indent(2, False) }}
+{% endif %}
+
+  <!-- A "Service" is a collection of one or more "Connectors" that share
+       a single "Container" Note:  A "Service" is not itself a "Container",
+       so you may not define subcomponents such as "Valves" at this level.
+       Documentation at /docs/config/service.html
+   -->
+
+  <Service name="Catalina">
+
+{% if tomcat_conf_connector_http is defined %}
+    <!-- HTTP connector -->
+    {{ tomcat_conf_connector_http | indent(4, False) }}
+{% endif %}
+
+{% if tomcat_conf_connector_https is defined %}
+    <!-- HTTPS connector -->
+    {{ tomcat_conf_connector_https | indent(4, False) }}
+{% endif %}
+
+{% if tomcat_conf_connector_ajp is defined %}
+    <!-- Define an AJP 1.3 Connector on port 8009 -->
+    {{ tomcat_conf_connector_ajp | indent(4, False) }}
+{% endif %}
+
+{% if tomcat_conf_connector_extras is defined %}
+    <!-- Extra connectors -->
+    {{ tomcat_conf_connector_extras | indent(4, False) }}
+{% endif %}
+
+    <!-- An Engine represents the entry point (within Catalina) that processes
+         every request.  The Engine implementation for Tomcat stand alone
+         analyzes the HTTP headers included with the request, and passes them
+         on to the appropriate Host (virtual host).
+         Documentation at /docs/config/engine.html -->
+
+    <!-- You should set jvmRoute to support load-balancing via AJP ie :
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
+    -->
+    <Engine name="Catalina" defaultHost="localhost">
+
+      <!--For clustering, please take a look at documentation at:
+          /docs/cluster-howto.html  (simple how to)
+          /docs/config/cluster.html (reference documentation) -->
+      <!--
+      <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"/>
+      -->
+
+      <!-- Use the LockOutRealm to prevent attempts to guess user passwords
+           via a brute-force attack -->
+{% if tomcat_conf_realm is defined %}
+      {{ tomcat_conf_realm | indent(6, False) }}
+{% endif %}
+
+{% if tomcat_conf_host is defined %}
+      {{ tomcat_conf_host | indent(6, False) }}
+{% endif %}
+
+    </Engine>
+  </Service>
+</Server>
+{% endblock %}
+
+<!-- {{ ansible_managed }} -->

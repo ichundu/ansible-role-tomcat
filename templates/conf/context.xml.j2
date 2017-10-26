@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- {{ ansible_managed }} -->
+
+<Context antiResourceLocking="false" privileged="true" >
+	<Valve className="org.apache.catalina.valves.RemoteAddrValve"
+{% if tomcat_context_acl is defined and tomcat_context_acl | length > 0 %}
+		allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1|{{ tomcat_context_acl | join('|') }}" />
+{% else %}
+		allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" />
+{% endif %}
+	<Manager sessionAttributeValueClassNameFilter="java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap"/>
+</Context>
+
+<!-- {{ ansible_managed }} -->

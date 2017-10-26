@@ -8,11 +8,15 @@
     src: "{{ item.src}}"
     dest: "{{ item.dest }}"
   with_items:
-    - src: tomcat-users.xml.j2
+    - src: conf/server.xml.j2
+      dest: "{{ tomcat_install_dir }}/conf/server.xml"
+    - src: conf/tomcat-users.xml.j2
       dest: "{{ tomcat_install_dir }}/conf/tomcat-users.xml"
-    - src: context.xml.j2
+    - src: conf/context.xml.j2
       dest: "{{ tomcat_install_dir }}/webapps/host-manager/META-INF/context.xml"
-    - src: context.xml.j2
+    - src: conf/context.xml.j2
       dest: "{{ tomcat_install_dir }}/webapps/manager/META-INF/context.xml"
+    - src: bin/setenv.sh.j2
+      dest: "{{ tomcat_install_dir }}/bin/setenv.sh"
   notify:
     - restart tomcat

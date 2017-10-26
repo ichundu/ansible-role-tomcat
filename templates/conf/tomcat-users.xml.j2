@@ -7,10 +7,15 @@
               xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
               version="1.0">
 
-{% if tomcat_console_roles is defined %}
-{% for item in tomcat_console_roles %}
-  <role rolename="{{ item.role }}"/>
-  <user username="{{ item.user }}" password="{{ item.password }}" roles="{{ item.role }}"/>
+{% if tomcat_roles is defined and tomcat_roles | length > 0 %}
+{% for item in tomcat_roles %}
+  <role rolename="{{ item }}"/>
+{% endfor %}
+{% endif %}
+
+{% if tomcat_console_users is defined and tomcat_console_users | length > 0 %}
+{% for item in tomcat_console_users %}
+  <user username="{{ item.name }}" password="{{ item.password }}" roles="{{ item.roles }}"/>
 {% endfor %}
 {% endif %}
 
