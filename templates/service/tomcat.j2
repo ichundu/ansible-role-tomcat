@@ -18,24 +18,20 @@
 
 ## Source function library.
 #. /etc/rc.d/init.d/functions
+
+## Variables
 export JAVA_HOME={{ tomcat_java_home }}
-
-#export JAVA_OPTS="-Dfile.encoding=UTF-8 \
-#  -Dnet.sf.ehcache.skipUpdateCheck=true \
-#  -XX:+UseConcMarkSweepGC \
-#  -XX:+CMSClassUnloadingEnabled \
-#  -XX:+UseParNewGC \
-#  -XX:MaxPermSize=128m \
-#  -Xms512m -Xmx512m"
-
 export PATH=$JAVA_HOME/bin:$PATH
-TOMCAT_HOME={{ tomcat_install_dir }}
-CATALINA_PID={{ tomcat_install_dir }}/temp/tomcat.pid
-CATALINA_HOME={{ tomcat_install_dir }}
-CATALINA_BASE={{ tomcat_install_dir }}
-
-TOMCAT_USER=tomcat
+TOMCAT_HOME={{ tomcat_catalina_home }}
+CATALINA_PID={{ tomcat_catalina_home }}/work/catalina.pid
+CATALINA_HOME={{ tomcat_catalina_home }}
+CATALINA_BASE={{ tomcat_catalina_home }}
+tomcat_os_user={{ tomcat_os_user[0].name }}
 SHUTDOWN_WAIT=10
+prog=tomcat
+prog=tomcat
+# lockfile="/var/lock/subsys/${prog}"
+# PIDFILE="/var/run/${prog}.pid"
 
 tomcat_pid() {
   echo `ps aux | grep org.apache.catalina.startup.Bootstrap | grep -v grep | awk '{ print $2 }'`
@@ -51,7 +47,7 @@ start() {
     echo "Starting tomcat"
     ulimit -n 100000
     umask 007
-    /bin/su -p -s /bin/sh $TOMCAT_USER $TOMCAT_HOME/bin/startup.sh
+    /bin/su -p -s /bin/sh $tomcat_os_user $TOMCAT_HOME/bin/startup.sh
   fi
 
 
@@ -63,7 +59,7 @@ stop() {
   if [ -n "$pid" ]
   then
     echo "Stoping Tomcat"
-    /bin/su -p -s /bin/sh $TOMCAT_USER $TOMCAT_HOME/bin/shutdown.sh
+    /bin/su -p -s /bin/sh $tomcat_os_user $TOMCAT_HOME/bin/shutdown.sh
 
     let kwait=$SHUTDOWN_WAIT
     count=0;
@@ -86,25 +82,29 @@ stop() {
 }
 
 case $1 in
-start)
-  start
-;;
-stop)
-  stop
-;;
-restart)
-  stop
-  start
-;;
-status)
-  pid=$(tomcat_pid)
-  if [ -n "$pid" ]
-  then
-    echo "Tomcat is running with pid: $pid"
-  else
-    echo "Tomcat is not running"
-  fi
-;;
+  start)
+    start
+  ;;
+  stop)
+    stop
+  ;;
+  restart)
+    stop
+    sleep $SHUTDOWN_WAIT
+    start
+  ;;
+  status)
+    pid=$(tomcat_pid)
+    if [ -n "$pid" ]
+    then
+      echo "Tomcat is running with pid: $pid"
+    else
+      echo "Tomcat is not running"
+    fi
+  ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 2
 esac
 exit 0
 

@@ -1,11 +1,17 @@
 ---
 # tasks file for tomcat
 
+- name: Install package dependencies
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ tomcat_pkg_deps }}"
+
 - name: Create tomcat group
   group:
     name: "{{ item.group | default(item.name) }}"
     state: "{{ item.state | default('present') }}"
-  with_items: "{{ tomcat_user }}"
+  with_items: "{{ tomcat_os_user }}"
 
 - name: Create tomcat user
   user:
@@ -16,48 +22,43 @@
     createhome: "{{ item.createhome | default(omit) }}"
     home: "{{ item.home | default(omit) }}"
     state: "{{ item.state | default('present') }}"
-  with_items: "{{ tomcat_user }}"
+  with_items: "{{ tomcat_os_user }}"
 
 - name: Check if tomcat is already installed
   stat:
-    path: "{{ tomcat_install_dir }}"
+    path: "{{ tomcat_catalina_home }}"
   register: tomcat_is_installed
 
-- name: Ensure tomcat installation directory exists
+- name: Ensure tomcat base directory for installation exists
   file:
-    path: "{{ tomcat_install_dir }}"
-    owner: "{{ item.name | default(omit) }}"
-    group: "{{ item.group | default(omit) }}"
+    path: "{{ tomcat_base_dir }}"
     state: directory
-  when: tomcat_install_dir is defined
-  with_items: "{{ tomcat_user }}"
+  when:
+    - tomcat_base_dir is defined
+    - tomcat_base_dir | length > 0
 
-- name: Download tomcat tarball
-  get_url:
-    url: "{{ tomcat_download_url }}"
-    dest: /tmp
-  when: not tomcat_is_installed.stat.exists
-
-- name: Extract tomcat tarball
+- name: Download and extract tomcat tarball
   unarchive:
-    src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
-    dest: "{{ tomcat_install_dir }}"
+    src: "{{ tomcat_archive }}"
+    dest: "{{ tomcat_base_dir }}"
     owner: "{{ item.name | default(omit) }}"
     group: "{{ item.group | default(omit) }}"
     remote_src: yes
-    extra_opts: "--strip-components=1"
-  when: not tomcat_is_installed.stat.exists
-  with_items: "{{ tomcat_user }}"
+    creates: "{{ tomcat_catalina_home }}"
+  with_items: "{{ tomcat_os_user }}"
 
-- name: Create symbolic link to tomcat installation directory
-  file:
-    src: "{{ tomcat_install_dir }}"
-    dest: "{{ tomcat_install_link }}"
-    state: link
-  when: tomcat_install_link is defined
-
-- name: Install java
-  yum:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ tomcat_java_packages }}"
+- name: Download jdbc driver
+  get_url:
+    url: "{{ item.0 }}"
+    dest: "{{ item.1 }}"
+    owner: "{{ item.2.name }}"
+    group: "{{ item.2.group }}"
+  with_nested:
+    - "{{ tomcat_jdbc_url }}"
+    - "{{ tomcat_jdbc_path }}"
+    - "{{ tomcat_os_user }}"
+  when:
+    - tomcat_jdbc_url is defined
+    - tomcat_jdbc_url | length > 0
+    - tomcat_jdbc_path is defined
+    - tomcat_jdbc_path | length > 0

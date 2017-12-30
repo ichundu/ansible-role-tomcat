@@ -1,0 +1,42 @@
+---
+
+- name: Create systemd service for tomcat
+  template:
+    src: "service/tomcat.service.j2"
+    dest: "/etc/systemd/system/{{ tomcat_daemon_name }}.service"
+  notify: systemd daemon reload
+  when: ansible_service_mgr == "systemd"
+
+- name: Run notified handlers
+  meta: flush_handlers
+
+- name: Create upstart init service for tomcat
+  template:
+    src: "service/tomcat.j2"
+    dest: "/etc/rc.d/init.d/{{ tomcat_daemon_name }}"
+    mode: "0755"
+  when: ansible_service_mgr == "upstart"
+
+- name: Start and enable tomcat
+  service:
+    name: "{{ tomcat_daemon_name }}"
+    state: started
+    enabled: true
+
+- name: Configure tomcat
+  template:
+    src: "{{ item.src}}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: conf/server.xml.j2
+      dest: "{{ tomcat_catalina_home }}/conf/server.xml"
+    - src: conf/tomcat-users.xml.j2
+      dest: "{{ tomcat_catalina_home }}/conf/tomcat-users.xml"
+    - src: conf/context.xml.j2
+      dest: "{{ tomcat_catalina_home }}/webapps/host-manager/META-INF/context.xml"
+    - src: conf/context.xml.j2
+      dest: "{{ tomcat_catalina_home }}/webapps/manager/META-INF/context.xml"
+    - src: bin/setenv.sh.j2
+      dest: "{{ tomcat_catalina_home }}/bin/setenv.sh"
+  notify:
+    - restart tomcat

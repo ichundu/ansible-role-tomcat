@@ -3,5 +3,9 @@
 
 - name: restart tomcat
   service:
-    name: tomcat
+    name: "{{ tomcat_daemon_name }}"
     state: restarted
+
+- name: systemd daemon reload
+  systemd:
+    daemon_reload: true

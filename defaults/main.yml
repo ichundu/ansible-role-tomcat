@@ -1,24 +1,33 @@
 ---
 # defaults file for tomcat
 
-# Tomcat service user settings
-tomcat_user:
+# Package dependencies
+tomcat_pkg_deps:
+  - java-1.8.0-openjdk
+  - java-1.8.0-openjdk-devel
+  - unzip
+  - tar
+
+# Tomcat OS user settings
+tomcat_os_user:
   - name: "tomcat"
     group: "tomcat"
-    # shell: "/sbin/nologin"
+    shell: "/sbin/nologin"
     # createhome: false
     # home: "/opt/apache-tomcat"
 
-
-# Tomcat version and URL
-tomcat_version: "8.5.23"
-tomcat_download_url: "http://www-us.apache.org/dist/tomcat/tomcat-8/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
-tomcat_install_dir: "/opt/apache-tomcat-{{ tomcat_version }}"
-tomcat_install_link: "/opt/apache-tomcat"
-
-tomcat_java_packages:
-  - java-1.8.0-openjdk
-  - java-1.8.0-openjdk-devel
+# Tomcat installation settings
+tomcat_update: false
+tomcat_release: "8.5.24"
+tomcat_archive: "http://www.apache.org/dist/tomcat/tomcat-{{ tomcat_release.split('.')[0] }}/v{{ tomcat_release }}/bin/apache-tomcat-{{ tomcat_release }}.tar.gz"
+tomcat_base_dir: "/opt"
+tomcat_catalina_home: "{{ tomcat_base_dir }}/apache-tomcat-{{ tomcat_release }}"
+tomcat_daemon_name: "tomcat"
+tomcat_java_home: "/usr"
+tomcat_jre_home: "/usr"
+tomcat_jdbc_url: ""
+tomcat_jdbc_path: []
+  #- "{{ tomcat_catalina_home }}/lib/{{ tomcat_jdbc_driver }}"
 
 
 # Tomcat configuration settings
@@ -36,8 +45,6 @@ tomcat_console_users: []
   # - name: "tomcat"
   #   password: "s3cret"
   #   roles: "manager-gui,admin-gui,manager-status"
-
-tomcat_java_home: "/usr/lib/jvm/jre"
 
 tomcat_setenv: []
   # - CATALINA_OPTS=""
@@ -117,5 +124,4 @@ tomcat_conf_host: |
     <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
            prefix="localhost_access_log" suffix=".txt"
            pattern="%h %l %u %t &quot;%r&quot; %s %b" />
-
   </Host>

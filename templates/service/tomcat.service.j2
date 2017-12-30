@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+
+# Systemd unit file for tomcat
+[Unit]
+Description=Apache Tomcat Web Application Container
+After=syslog.target network.target
+
+[Service]
+Type=forking
+PIDFile={{ tomcat_catalina_home }}/work/catalina.pid
+Environment=JAVA_HOME={{ tomcat_java_home }}
+Environment=JRE_HOME={{ tomcat_jre_home }}
+Environment=CATALINA_PID={{ tomcat_catalina_home }}/work/catalina.pid
+Environment=CATALINA_HOME={{ tomcat_catalina_home }}
+Environment=CATALINA_BASE={{ tomcat_catalina_home }}
+ExecStart={{ tomcat_catalina_home }}/bin/startup.sh
+ExecStop={{ tomcat_catalina_home }}/bin/shutdown.sh
+
+User={{ tomcat_os_user[0].name }}
+Group={{ tomcat_os_user[0].group }}
+UMask=0027
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+# {{ ansible_managed }}

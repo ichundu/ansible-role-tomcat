@@ -1,10 +1,11 @@
 ---
 # tasks file for tomcat
 
-- include: install.yml
-  tags:
-    - install
+- name: Stop tomcat before update
+  service:
+    name: "{{ tomcat_daemon_name }}"
+    state: stopped
+  when: tomcat_update
 
-- include: setup.yml
-  tags:
-    - setup
+- import_tasks: install.yml
+- import_tasks: configure.yml
