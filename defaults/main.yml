@@ -13,24 +13,39 @@ tomcat_os_user:
   - name: "tomcat"
     group: "tomcat"
     shell: "/sbin/nologin"
-    # createhome: false
-    # home: "/opt/apache-tomcat"
+    createhome: false
 
 # Tomcat installation settings
 tomcat_update: false
-tomcat_release: "8.5.24"
-tomcat_archive: "http://www.apache.org/dist/tomcat/tomcat-{{ tomcat_release.split('.')[0] }}/v{{ tomcat_release }}/bin/apache-tomcat-{{ tomcat_release }}.tar.gz"
+tomcat_daemon_name: "tomcat"
+tomcat_version: "8.5.24"
+tomcat_archive: "http://www.apache.org/dist/tomcat/tomcat-{{ tomcat_version.split('.')[0] }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
 tomcat_base_dir: "/opt"
-tomcat_catalina_home: "{{ tomcat_base_dir }}/apache-tomcat-{{ tomcat_release }}"
+tomcat_catalina_home: "{{ tomcat_base_dir }}/apache-tomcat-{{ tomcat_version }}"
 tomcat_daemon_name: "tomcat"
 tomcat_java_home: "/usr"
 tomcat_jre_home: "/usr"
+
+# Systemd service ExecStartPre, ExecStartPost and ExecStopPost commands,
+# multiple commands can only be used when 'Type=Oneshot'
+# https://www.freedesktop.org/software/systemd/man/systemd.service.html#ExecStartPre=
+tomcat_systemd:
+  ExecStartPre: []
+    # - command_1
+    # - command_2
+  ExecStartPost: []
+    # - command_1
+    # - command_2
+  ExecStopPost: []
+    # - command_1
+    # - command_2
+
+# tomcat_shutdown_wait: "20"
 tomcat_jdbc_url: ""
 tomcat_jdbc_path: []
   #- "{{ tomcat_catalina_home }}/lib/{{ tomcat_jdbc_driver }}"
 
-
-# Tomcat configuration settings
+## Tomcat configuration settings
 tomcat_context_acl: []
 
 tomcat_roles: []
@@ -46,10 +61,19 @@ tomcat_console_users: []
   #   password: "s3cret"
   #   roles: "manager-gui,admin-gui,manager-status"
 
-tomcat_setenv: []
-  # - CATALINA_OPTS=""
-  # - JAVA_OPTS=""
 
+## ${catalina.home}/bin/setenv.sh
+tocmat_setenv_catalina_opts: []
+  # - -Xms4096m
+  # - -Xmx8192m
+tocmat_setenv_java_opts: []
+  # - -Xms4096m
+  # - -Xmx8192m
+tomcat_setenv_extras: []
+  # - "JAVA_HOME=/usr"
+
+
+## ${catalina.home}/conf/server.xml settings
 tomcat_conf_listeners: |
   <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
   <!-- Security listener. Documentation at /docs/config/listeners.html
@@ -96,7 +120,7 @@ tomcat_conf_connector_https: |
 tomcat_conf_connector_ajp: |
   <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
 
-tomcat__conf_connector_extras: []
+tomcat_conf_connector_extras: |
 
 tomcat_conf_realm: |
   <Realm className="org.apache.catalina.realm.LockOutRealm">
@@ -125,3 +149,11 @@ tomcat_conf_host: |
            prefix="localhost_access_log" suffix=".txt"
            pattern="%h %l %u %t &quot;%r&quot; %s %b" />
   </Host>
+
+
+## ${catalina.home}/conf/context.xml settings
+tomcat_disable_session_persistance: true
+tomcat_conf_context_xml_extras: |
+
+## ${catalina.home}/conf/tomcat-users.xml settings
+tomcat_conf_users_xml_extras: |

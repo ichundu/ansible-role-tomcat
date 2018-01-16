@@ -1,12 +1,12 @@
 Role Name: tomcat
 =================
 
-This role installs Apache Tomcat on EL 6 and 7 distributions
+Deploy Apache Tomcat
 
 Requirements
 ------------
 
-GNU Tar or unzip depending on the archive format.
+GNU Tar or unzip, depending on the archive format.
 
 Role Variables
 --------------
@@ -17,33 +17,33 @@ Default variables in `defaults/main.yml`:
 
 	```yaml
 	tomcat_os_user:
-	  - name: "tomcat"							# Tomcat OS service user
-	    group: "tomcat"							# Tomcat OS group
-	    shell: "/sbin/nologin"			# Tomcat user shell
-	    createhome: "no"						# Whether to create home dir for OS user or not
-	    home: "/opt/apache-tomcat"	# Tomcat OS user home
+	  - name: "tomcat"              # Tomcat OS service user
+	    group: "tomcat"             # Tomcat OS group
+	    shell: "/sbin/nologin"      # Tomcat user shell
+	    createhome: false           # Whether to create home dir for OS user or not
+	    home: "/home/tomcat"        # Tomcat OS user home
 	```
 
 - Variables related to tomcat installation:
 
 	|	Variable name	|	Default value	|	Description	|
 	|-----------------------|-----------------------|-----------------------|
-  | `tomcat_update` | `false` | Set to true when updating tomcat to a newer release. This makes sure tomcat is properly stopped before updating. |
-	| `tomcat_release` | `8.5.23` | Version of Apache Tomcat to install |
-	| `tomcat_archive` | `http://{{ repo-srv }}/tomcat/apache-tomcat-{{ tomcat_release }}.tar.gz` | Tomcat tarball download url |
-	| `tomcat_catalina_home` | `/opt/apache-tomcat-{{ tomcat_release }}` | Tomcat installation directory |
-  | `tomcat_daemon_name` | `tomcat` | Name of tomcat daemon/service |
-  | `tomcat_java_home` | `/usr` | `$JAVA_HOME` value |
-	| `tomcat_jre_home` | `/usr` | `$JRE_HOME` value |
+	| `tomcat_update` | `false` | Set to `true` when updating tomcat. Ensures tomcat is running tomcat instance is stopped before updating |
+	| `tomcat_daemon_name` | `tomcat` | Name of the tomcat OS service/daemon |
+	| `tomcat_version` | `8.5.24` | Version of Apache Tomcat to install |
+	| `tomcat_archive` | `http://www.apache.org/dist/tomcat/tomcat-{{tomcat_version.split('.')[0]}}/v{{tomcat_version}}/bin/apache-tomcat-{{tomcat_version}}.tar.gz` | Tomcat tarball download url |
+	| `tomcat_base_dir` | `/opt` | Base directory where tomcat archive should be extracted |
+	| `tomcat_catalina_home` | `/opt/apache-tomcat-{{tomcat_version}}` | Tomcat installation directory |
 	| `tomcat_jdbc_url` | `""` | Download url for JDBC driver |
-	| `tomcat_jdbc_path` | `[]` | List of paths on the host where the JDBC driver will be downloaded |
+	| `tomcat_jdbc_path` | `[]` | List of paths on the host where the JDBC driver will be downloaded, example: `{{tomcat_catalina_home}}/lib/{{ tomcat_jdbc_driver }}` |
+	| `tomcat_systemd:`<br/>&nbsp;&nbsp;`ExecStartPre:`<br/>&nbsp;&nbsp;`ExecStartPost:`<br/>&nbsp;&nbsp;`ExecStopPost:` | <br/>`[]`<br/>`[]`<br/>`[]` | Systemd service pre-start, post-start and post-stop commands. Multiple commands (var list items) only supported when `Type=Oneshot` in the systemd unit service |
 
 - Declare a list of IP addresses to which remote access is allowd to Tomcat administration apps. This variable is used for templating `context.xml` files inside webapps.
 
 	```yaml
 	tomcat_context_acl:
-		- 192.168.0.8
-		- 192.168.24.78
+		- 192.168.0.5
+		- 192.168.1.2
 	```
 
 - Tomcat console roles (administration webapps). This variable is used for templating the `tomcat-users.xml` configuration file.
@@ -67,12 +67,25 @@ Default variables in `defaults/main.yml`:
 	    roles: "manager-gui,admin-gui,manager-status"
 	```
 
-- Define environment variables here, used for templating `${catalina.home}/bin/setenv.sh` file.
+- Define environment variables here, used for templating `${catalina.home}/bin/setenv.sh` file. Most common variables in `setenv.sh` are `CATALINA_OPTS` and `JAVA_OPTS`. Each Java option is declared as a list of items fore ease of configration and they are joined on a single line at the `setenv.sh` template:
+
+	```bash
+	CATALINA_OPTS={{ tomcat_catalina_opts | join(' ') }}
+	```
 
 	```yaml
-	tomcat_setenv:
-	  - CATALINA_OPTS=""
-	  - JAVA_OPTS=""
+	tocmat_catalina_opts:
+	  - "-server -Xms4096m -Xmx8192m"
+
+	tocmat_java_opts:
+	  - "-server -Xms4096m -Xmx8192m"
+	```
+
+	Extra `setenv.sh` items can be declared by the following multi-item varaible list/array:
+
+	```yaml
+	tomcat_setenv_extras:
+	  - "JAVA_HOME=/usr"
 	```
 
 - Tomcat configuration variables, used for templating `${catalina.home}/conf/server.xml` file. Default values from tomcat installation are used here.
@@ -89,7 +102,8 @@ Default variables in `defaults/main.yml`:
 	  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
 	  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
 	  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
-
+	```
+	```yaml
 	tomcat_conf_jndi_resources: |
 	  <GlobalNamingResources>
 	    <!-- Editable user database that can also be used by
@@ -101,12 +115,14 @@ Default variables in `defaults/main.yml`:
 	              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
 	              pathname="conf/tomcat-users.xml" />
 	  </GlobalNamingResources>
-
+	```
+	```yaml
 	tomcat_conf_connector_http: |
 	  <Connector port="8080" protocol="HTTP/1.1"
 	             connectionTimeout="20000"
 	             redirectPort="8443" />
-
+	```
+	```yaml
 	tomcat_conf_connector_https: |
 	  <!--
 	  <Connector port="8443" protocol="org.apache.coyote.http11.Http11AprProtocol"
@@ -120,12 +136,15 @@ Default variables in `defaults/main.yml`:
 	      </SSLHostConfig>
 	  </Connector>
 	  -->
-
+	```
+	```yaml
 	tomcat_conf_connector_ajp: |
 	  <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
-
-	tomcat__conf_connector_extras: []
-
+	```
+	```yaml
+	tomcat_conf_connector_extras: |
+	```
+	```yaml
 	tomcat_conf_realm: |
 	  <Realm className="org.apache.catalina.realm.LockOutRealm">
 	    <!-- This Realm uses the UserDatabase configured in the global JNDI
@@ -135,7 +154,8 @@ Default variables in `defaults/main.yml`:
 	    <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
 	           resourceName="UserDatabase"/>
 	  </Realm>
-
+	```
+	```yaml
 	tomcat_conf_host: |
 	  <Host name="localhost"  appBase="webapps"
 	        unpackWARs="true" autoDeploy="true">
@@ -155,6 +175,15 @@ Default variables in `defaults/main.yml`:
 	  </Host>
 	```
 
+- Extending configuration files `${catalina.home}/conf/context.xml` and `${catalina.home}/conf/tomcat-users.xml`:
+
+	```yaml
+	tomcat_disable_session_persistance: false
+	tomcat_conf_context_xml_extras: |
+
+	tomcat_conf_users_xml_extras: |
+	```
+
 Dependencies
 ------------
 
@@ -166,13 +195,13 @@ Example Playbook
 ```yaml
 - hosts: servers
   roles:
-     - ichundu.tomcat
+    - ichundu.tomcat
 ```
 
 License
 -------
 
-BSD
+GPLv2
 
 Author Information
 ------------------

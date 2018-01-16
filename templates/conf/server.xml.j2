@@ -2,14 +2,14 @@
 
 <!-- {{ ansible_managed }} -->
 
-{% block tomcat_server_instance %}
+{% block tomcat_server_xml_main_block %}
 <Server port="8005" shutdown="SHUTDOWN">
 
-{% if tomcat_conf_listeners is defined %}
+{% if tomcat_conf_listeners is defined and tomcat_conf_listeners | length > 0 %}
   {{ tomcat_conf_listeners | indent(2, False) }}
 {% endif %}
 
-{% if tomcat_conf_jndi_resources is defined %}
+{% if tomcat_conf_jndi_resources is defined and tomcat_conf_jndi_resources | length > 0 %}
   <!-- Global JNDI resources
        Documentation at /docs/jndi-resources-howto.html
   -->
@@ -24,22 +24,22 @@
 
   <Service name="Catalina">
 
-{% if tomcat_conf_connector_http is defined %}
+{% if tomcat_conf_connector_http is defined and tomcat_conf_connector_http | length > 0 %}
     <!-- HTTP connector -->
     {{ tomcat_conf_connector_http | indent(4, False) }}
 {% endif %}
 
-{% if tomcat_conf_connector_https is defined %}
+{% if tomcat_conf_connector_https is defined and tomcat_conf_connector_https | length > 0 %}
     <!-- HTTPS connector -->
     {{ tomcat_conf_connector_https | indent(4, False) }}
 {% endif %}
 
-{% if tomcat_conf_connector_ajp is defined %}
+{% if tomcat_conf_connector_ajp is defined and tomcat_conf_connector_ajp | length > 0 %}
     <!-- Define an AJP 1.3 Connector on port 8009 -->
     {{ tomcat_conf_connector_ajp | indent(4, False) }}
 {% endif %}
 
-{% if tomcat_conf_connector_extras is defined %}
+{% if tomcat_conf_connector_extras is defined and tomcat_conf_connector_extras | length > 0 %}
     <!-- Extra connectors -->
     {{ tomcat_conf_connector_extras | indent(4, False) }}
 {% endif %}
@@ -64,11 +64,11 @@
 
       <!-- Use the LockOutRealm to prevent attempts to guess user passwords
            via a brute-force attack -->
-{% if tomcat_conf_realm is defined %}
+{% if tomcat_conf_realm is defined and tomcat_conf_realm | length > 0 %}
       {{ tomcat_conf_realm | indent(6, False) }}
 {% endif %}
 
-{% if tomcat_conf_host is defined %}
+{% if tomcat_conf_host is defined and tomcat_conf_host | length > 0 %}
       {{ tomcat_conf_host | indent(6, False) }}
 {% endif %}
 

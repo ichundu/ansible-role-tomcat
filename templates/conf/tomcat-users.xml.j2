@@ -7,18 +7,25 @@
               xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
               version="1.0">
 
+{% block tomcat_users_xml_main_block %}
 {% if tomcat_roles is defined and tomcat_roles | length > 0 %}
 {% for item in tomcat_roles %}
-  <role rolename="{{ item }}"/>
+    <role rolename="{{ item }}"/>
 {% endfor %}
 {% endif %}
 
 {% if tomcat_console_users is defined and tomcat_console_users | length > 0 %}
 {% for item in tomcat_console_users %}
-  <user username="{{ item.name }}" password="{{ item.password }}" roles="{{ item.roles }}"/>
+    <user username="{{ item.name }}" password="{{ item.password }}" roles="{{ item.roles }}"/>
 {% endfor %}
 {% endif %}
+{% endblock %}
 
+{% block tomcat_users_xml_custom_block %}
+{% if tomcat_conf_users_xml_extras is defined and tomcat_conf_users_xml_extras | length > 0 %}
+    {{ tomcat_conf_users_xml_extras | indent(4, False) }}
+{% endif %}
+{% endblock %}
 </tomcat-users>
 
 <!-- {{ ansible_managed }} -->

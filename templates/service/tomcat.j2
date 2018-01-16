@@ -21,13 +21,14 @@
 
 ## Variables
 export JAVA_HOME={{ tomcat_java_home }}
+export JRE_HOME={{ tomcat_jre_home }}
 export PATH=$JAVA_HOME/bin:$PATH
 TOMCAT_HOME={{ tomcat_catalina_home }}
 CATALINA_PID={{ tomcat_catalina_home }}/work/catalina.pid
 CATALINA_HOME={{ tomcat_catalina_home }}
 CATALINA_BASE={{ tomcat_catalina_home }}
 tomcat_os_user={{ tomcat_os_user[0].name }}
-SHUTDOWN_WAIT=10
+SHUTDOWN_WAIT={{ tomcat_shutdown_wait | default('15') }}
 prog=tomcat
 prog=tomcat
 # lockfile="/var/lock/subsys/${prog}"
@@ -59,7 +60,7 @@ stop() {
   if [ -n "$pid" ]
   then
     echo "Stoping Tomcat"
-    /bin/su -p -s /bin/sh $tomcat_os_user $TOMCAT_HOME/bin/shutdown.sh
+    /bin/su -p -s /bin/sh $tomcat_os_user $TOMCAT_HOME/bin/shutdown.sh {{ tomcat_shutdown_wait | default(omit) }}
 
     let kwait=$SHUTDOWN_WAIT
     count=0;

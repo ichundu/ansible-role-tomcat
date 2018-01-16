@@ -1,8 +1,18 @@
 #!/bin/bash
 # {{ ansible_managed }}
 
-{% if tomcat_setenv is defined and tomcat_setenv | length > 0 %}
-{% for item in tomcat_setenv %}
+{% block tomcat_template_setenv %}
+{% if tomcat_catalina_opts is defined and tomcat_catalina_opts | length > 0 %}
+CATALINA_OPTS="{{ tomcat_catalina_opts | join(' ') }}"
+{% endif %}
+
+{% if tomcat_java_opts is defined and tomcat_java_opts | length > 0 %}
+JAVA_OPTS="{{ tomcat_java_opts | join(' ') }}"
+{% endif %}
+
+{% if tomcat_setenv_extras is defined and tomcat_setenv_extras | length > 0 %}
+{% for item in tomcat_setenv_extras %}
 {{ item }}
 {% endfor %}
 {% endif %}
+{% endblock %}

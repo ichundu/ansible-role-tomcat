@@ -1,19 +1,13 @@
 ---
 # tasks file for tomcat
 
-- name: Install package dependencies
-  yum:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ tomcat_pkg_deps }}"
-
-- name: Create tomcat group
+- name: Create Tomcat group
   group:
     name: "{{ item.group | default(item.name) }}"
     state: "{{ item.state | default('present') }}"
   with_items: "{{ tomcat_os_user }}"
 
-- name: Create tomcat user
+- name: Create Tomcat OS user
   user:
     name: "{{ item.name | default('tomcat') }}"
     group: "{{ item.group | default(item.name) }}"
@@ -24,27 +18,27 @@
     state: "{{ item.state | default('present') }}"
   with_items: "{{ tomcat_os_user }}"
 
-- name: Check if tomcat is already installed
-  stat:
-    path: "{{ tomcat_catalina_home }}"
-  register: tomcat_is_installed
-
-- name: Ensure tomcat base directory for installation exists
+- name: Ensure Tomcat base directory for installation exists
   file:
     path: "{{ tomcat_base_dir }}"
     state: directory
   when:
     - tomcat_base_dir is defined
     - tomcat_base_dir | length > 0
+    
+- name: Check if Tomcat is already installed
+  stat:
+    path: "{{ tomcat_catalina_home }}"
+  register: tomcat_is_installed
 
-- name: Download and extract tomcat tarball
+- name: Download and extract Apache Tomcat
   unarchive:
     src: "{{ tomcat_archive }}"
     dest: "{{ tomcat_base_dir }}"
     owner: "{{ item.name | default(omit) }}"
     group: "{{ item.group | default(omit) }}"
     remote_src: yes
-    creates: "{{ tomcat_catalina_home }}"
+  when: not tomcat_is_installed.stat.exists
   with_items: "{{ tomcat_os_user }}"
 
 - name: Download jdbc driver

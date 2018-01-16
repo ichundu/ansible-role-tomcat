@@ -13,13 +13,28 @@ Environment=JRE_HOME={{ tomcat_jre_home }}
 Environment=CATALINA_PID={{ tomcat_catalina_home }}/work/catalina.pid
 Environment=CATALINA_HOME={{ tomcat_catalina_home }}
 Environment=CATALINA_BASE={{ tomcat_catalina_home }}
+{% if tomcat_systemd.ExecStartPre is defined and tomcat_systemd.ExecStartPre | length > 0 %}
+{% for item in tomcat_systemd.ExecStartPre %}
+ExecStartPre={{ item }}
+{% endfor %}
+{% endif %}
 ExecStart={{ tomcat_catalina_home }}/bin/startup.sh
-ExecStop={{ tomcat_catalina_home }}/bin/shutdown.sh
+{% if tomcat_systemd.ExecStartPost is defined and tomcat_systemd.ExecStartPost | length > 0 %}
+{% for item in tomcat_systemd.ExecStartPost %}
+ExecStartPost={{ item }}
+{% endfor %}
+{% endif %}
+ExecStop={{ tomcat_catalina_home }}/bin/shutdown.sh {{ tomcat_shutdown_wait | default(omit) }}
+{% if tomcat_systemd.ExecStopPost is defined and tomcat_systemd.ExecStopPost | length > 0 %}
+{% for item in tomcat_systemd.ExecStopPost %}
+ExecStopPost={{ item }}
+{% endfor %}
+{% endif %}
 
 User={{ tomcat_os_user[0].name }}
 Group={{ tomcat_os_user[0].group }}
 UMask=0027
-RestartSec=10
+RestartSec=15
 
 [Install]
 WantedBy=multi-user.target

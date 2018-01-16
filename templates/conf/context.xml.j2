@@ -1,15 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- {{ ansible_managed }} -->
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
 
-<Context antiResourceLocking="false" privileged="true" >
-	<Valve className="org.apache.catalina.valves.RemoteAddrValve"
-{% if tomcat_context_acl is defined and tomcat_context_acl | length > 0 %}
-		allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1|{{ tomcat_context_acl | join('|') }}" />
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!-- The contents of this file will be loaded for each web application -->
+<Context>
+{% block tomcat_context_xml_main_block %}
+
+    <!-- Default set of monitored resources. If one of these changes, the    -->
+    <!-- web application will be reloaded.                                   -->
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+    <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
+
+    <!-- Uncomment this to disable session persistence across Tomcat restarts -->
+{% if tomcat_disable_session_persistance %}
+    <Manager pathname="" />
 {% else %}
-		allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" />
+    <!--
+    <Manager pathname="" />
+    -->
 {% endif %}
-	<Manager sessionAttributeValueClassNameFilter="java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap"/>
+
+{% endblock %}
+
+{% block tomcat_context_xml_custom_block %}
+{% if tomcat_conf_context_xml_extras is defined and tomcat_conf_context_xml_extras | length > 0 %}
+    {{ tomcat_conf_context_xml_extras | indent(4, False) }}
+{% endif %}
+{% endblock %}
+
 </Context>
 
 <!-- {{ ansible_managed }} -->
